@@ -1,0 +1,38 @@
+{
+    "name": "ecxod/header",
+    "description": "Drawing the header of a Site based on ENV Variables",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "files": [
+            "src/header/H.php",
+            "tests/HeaderTest.php"
+        ],
+        "psr-4": {
+            "Ecxod\\Header\\": "src/header/",
+            "Ecxod\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Christian Eichert",
+            "email": "c@zp1.net"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.2|^7.4|^8.0|^8.2",
+        "twig/twig": "^3.17"
+    },
+    "archive": {
+        "exclude": [
+            ".github",
+            ".vscode",
+            "tests/HeaderTest.php",
+            "vendor"
+        ]
+    },
+    "suggests": {
+        "phpunit/phpunit": "^11.5"
+    }
+}
