@@ -16,15 +16,18 @@ class H extends GLOBALE
     protected $cdn_down;
     protected $loader;
     protected $twig;
+    protected $twigpath;
 
     function __construct()
     {
         $this->cdn_down = false;
 
-        $this->loader = new FilesystemLoader(paths: $_ENV['TWIG']);
+        $this->twigpath = realpath(__DIR__ . '/../../templates/');
+
+        $this->loader = new FilesystemLoader(paths: $this->twigpath);
 
         // Namespacing : wir erstellen ein twig namespace 'index'
-        $this->loader->addPath(path: $_ENV['TWIG'], namespace: 'header');
+        $this->loader->addPath(path: $this->twigpath, namespace: 'header');
 
         // twig Objekt erstellen
         $this->twig = new Environment(loader: $this->loader);
@@ -32,59 +35,40 @@ class H extends GLOBALE
         parent::__construct();
     }
 
-    public function head()
+    public function head(float $vp = 1.0)
     {
         return $this->twig->render(name: '@header/_head.twig', context: [
-            'lang' =>  explode('_', string: $_ENV['LA'])[0],
-            'encTYPE' => $this->encTYPE(),
-            'viewport' => $this->viewport(1.0), 
-            'cash' => $this->cash('no-cache'),
-            // 'description' => $this->description(),
-            // 'icons' => $this->icons(),
-            // 'apple' => $this->apple(),
-            // 'twitter' => $this->twitter(),
+            'lang' =>  strval(value: explode(separator: '_', string: $_ENV['LANG'])[0]),
+
+            'charset' => strval(value: $_ENV['CHARSET']),
+
+            'initialScale' => number_format(num: $vp, decimals: 1),
+            'maximumScale' => number_format(num: $vp, decimals: 1),
+ 
+            'resultcash' => $this->cash('no-cache'),
+            // // 'description' => $this->description(),
+            // // 'icons' => $this->icons(),
+            // // 'apple' => $this->apple(),
+            // // 'twitter' => $this->twitter(),
             'loadBootstrapCssAndIcons' => $this->loadBootstrapCssAndIcons(),
-            'loadStyles' => $this->loadStyles(),
-            // 'autor' => $this->autor(),
-            // 'datum' => $this->datum(),
-            // 'canonical' => $this->canonical(),
+            // 'loadStyles' => $this->loadStyles() ?? "",
+            // // 'autor' => $this->autor(),
+            // // 'datum' => $this->datum(),
+            // // 'canonical' => $this->canonical(),
             'loadScripts' => $this->loadScripts(),
 
         ]);
     }
 
 
-    /** 
-     * @return string
-     */
-    function encTYPE(): string
-    {
-        return $this->twig->render(name: '@header/encTYPE.twig', context: [
-            'lang' =>  explode('_', string: $_ENV['LA'])[0],
-            'charset' => $_ENV['CHARSET'],
-        ]);
-    }
-
-    /**
-     * @param float $vp 
-     * @return string 
-     */
-    function viewport($vp = 1.0)
-    {
-        return $this->twig->render(name: '@header/viewport.twig', context: [
-            'initial-scale' =>   number_format($vp, 1),
-            'maximum-scale' => number_format($vp, 1),
-        ]);
-    }
-
 
     /** Cash Metatag ( no-cash | 3600s )
      * @param string|int $cash 
      * @return string 
      */
-    function cash(string|int $cash)
+    function cash(string|int $cash): string
     {
-        $txt = m(__METHOD__);
+        $txt = m(m: __METHOD__);
 
         // todo . nachdenken ob cache sinn macht in diesem fall
         if ($cash === "no-cache") {
@@ -114,11 +98,11 @@ class H extends GLOBALE
     /** Loading Scripts from CDN ( jquery, bootstrap js)
      * @return string
      */
-    function loadScripts()
+    function loadScripts(): string
     {
-        $txt = m(__METHOD__);
+        $txt = m(m: __METHOD__);
 
-        if ($this->ping($_ENV['CDN_JQ']) !== "down") {
+        if (isset($_ENV['CDN_JQ']) and $this->ping($_ENV['CDN_JQ']) !== "down") {
             // defer = laden wenn alles rum ist
             $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JQ'] . '"></script>' . PHP_EOL;
             //$txt .= '<script type="text/javascript" src="' . $_ENV['CDN_PO'] . '"></script>' . PHP_EOL;
@@ -127,7 +111,7 @@ class H extends GLOBALE
 
             //$txt .= '<script type="text/javascript" src="' . $_ENV['PRISM_JS'] . '"></script>' . PHP_EOL;
         } else {
-            $txt .= '<script type="text/javascript" src="/static/jquery/jquery.min.js"></script>' . PHP_EOL;
+            $txt .= '<script type="text/javascript" src="/static/@jquery/dist/jquery.min.js"></script>' . PHP_EOL;
             // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
             //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
             $txt .= '<script type="text/javascript" src="/static/bs/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
@@ -143,9 +127,10 @@ class H extends GLOBALE
      */
     function loadBootstrapCssAndIcons()
     {
-        $txt = m(__METHOD__);
+        // $txt = m(__METHOD__);
+        $txt = "";
         //CDN_BI
-        if ($this->ping($_ENV['CDN_BI']) !== "down") {
+        if (isset($_ENV['CDN_BI']) and $this->ping($_ENV['CDN_BI']) !== "down") {
             $txt .= '<link rel="stylesheet" type="text/css" href="' . $_ENV['CDN_BI'] . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
             $txt .= '<link rel="preload" type="text/css" href="' . $_ENV['CDN_BI'] . '" as="style">' . PHP_EOL;
             $txt .= '<link rel="prefetch" href="' . $_ENV['CDN_BI'] . '">' . PHP_EOL;
@@ -156,7 +141,7 @@ class H extends GLOBALE
             $txt .= '<link rel="prefetch" href="/static/bs/font/bootstrap-icons.min.css">' . PHP_EOL;
         }
         //CDN_CSS VON OBSI
-        if ($this->ping($_ENV['CDN_CSS']) !== "down") {
+        if (isset($_ENV['CDN_CSS']) and $this->ping($_ENV['CDN_CSS']) !== "down") {
 
             $txt .= '<link rel="stylesheet" type="text/css" href="' . $_ENV['CDN_CSS'] . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
             $txt .= '<link rel="preload" type="text/css" href="' . $_ENV['CDN_CSS'] . '" as="style">' . PHP_EOL;
