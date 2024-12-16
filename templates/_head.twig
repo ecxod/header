@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{ lang|raw }}">
 	<head>
-        {{ lang|raw }}
-        {{ encTYPE|raw }}
-        {{ viewport|raw }}
-        {{ cash|raw }}
-        {# {{ description|raw }} #}
-        {# {{ icons|raw }} #}
-        {# {{ apple|raw }} #}
-        {# {{ twitter|raw }} #}
+        {# {{ lang|raw }} #}
+        {# {{ encTYPE|raw }} #}
+        <meta charset="{{ charset|raw }}">
+        <meta http-equiv="Content-Type" content="text/html; charset={{ charset|raw }}">
+        <meta name="viewport" content="width=device-width, initial-scale={{ initialScale|raw }}, maximum-scale={{ maximumScale|raw }}"/>
+        {{ resultcash|raw }}
+            {# {{ description|raw }} #}
+            {# {{ icons|raw }} #}
+            {# {{ apple|raw }} #}
+            {# {{ twitter|raw }} #}
         {{ loadBootstrapCssAndIcons|raw }}
-        {{ loadStyles|raw }}
-        {# {{ autor|raw }} #}
-        {# {{ datum|raw }} #}
-        {# {{ canonical|raw }} #}
-        {{ loadScripts|raw }}
+        {# {{ loadStyles|raw }} #}
+            {# {{ autor|raw }} #}
+            {# {{ datum|raw }} #}
+            {# {{ canonical|raw }} #}
+        {# {{ loadScripts|raw }} #}
     </head>
-</html>
+
+
