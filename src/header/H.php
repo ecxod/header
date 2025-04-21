@@ -49,15 +49,59 @@ class H extends GLOBALE
             // // 'apple' => $this->apple(),
             // // 'twitter' => $this->twitter(),
             'loadBootstrapCssAndIcons' => $this->loadBootstrapCssAndIcons(),
-            // 'loadStyles' => $this->loadStyles() ??= "",
+            'loadStyles' => $this->loadStyles() ?? "",
             // // 'autor' => $this->autor(),
             // // 'datum' => $this->datum(),
             // // 'canonical' => $this->canonical(),
-            'loadScripts'              => $this->loadScripts(),
+            //'loadScripts'              => $this->loadScripts(),
 
         ]);
     }
 
+    public function getPublicFolderPath()
+    {
+        if(empty($_SERVER["DOCUMENT_ROOT"]))
+            die("Please set DOCUMENT_ROOT.");
+
+        $rootFolderPath = \realpath(path: $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . '..');
+        if(empty($_ENV["ROOT"]) or strval($_ENV["ROOT"]) !== $rootFolderPath)
+            die("Please set \$_ENV['DOCROOT'] to '{$rootFolderPath}'. - ERR[0001]");
+
+        if(empty($_ENV["DOCROOT"]) or strval($_ENV["DOCROOT"]) !== strval($_SERVER["DOCUMENT_ROOT"]))
+            die("Please set \$_ENV['DOCROOT'] to '{$_SERVER["DOCUMENT_ROOT"]}'. - ERR[0001]");
+
+        if(empty($_ENV["PUBLIC"]))
+            die("Please set \$_ENV['PUBLIC'] to something like \$_ENV['PUBLIC']='public' inside your Document Root.");
+
+        $publicFolderPath = \realpath(path: $_ENV["ROOT"] . DIRECTORY_SEPARATOR . $_ENV['PUBLIC']);
+        if(empty($publicFolderPath))
+            die("Unable to find Public Folder Path! - ERR[H0006]");
+        else
+            return $publicFolderPath;
+    }
+
+    public function getRelativeStaticFolderPath()
+    {
+        $publicFolderPath = $this->getPublicFolderPath();
+        if(empty($_ENV["STATIC"]))
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H004]");
+        $staticFolderPath = DIRECTORY_SEPARATOR . strval($_ENV["STATIC"]);
+        return $staticFolderPath;
+    }
+
+    public function getStaticFolderPath()
+    {
+        $publicFolderPath = $this->getPublicFolderPath();
+        if(empty($_ENV["STATIC"]))
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H004]");
+        $staticFolderPath = \realpath($publicFolderPath . DIRECTORY_SEPARATOR . $_ENV["STATIC"]);
+        if(empty($staticFolderPath))
+        {
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H005]");
+        }
+        else
+            return $staticFolderPath;
+    }
 
     /** Get the Composer Vendor Path
      * @return string
@@ -65,20 +109,24 @@ class H extends GLOBALE
      */
     protected function getVendorpath(): string
     {
-        $vendorpath    = "";
+        $vendorpath = "";
+        if(empty($_SERVER["DOCUMENT_ROOT"]))
+            die("Please set DOCUMENT_ROOT.");
+
+        if(empty($_ENV["VENDOR"]))
+            die("Please set \$_ENV['VENDOR'] to something like '" . $_SERVER["DOCUMENT_ROOT"] . "/../vendor/" . "' inside your Document Root.");
+
         $envVendorPath = \strval(\realpath($_ENV['VENDOR']));
-        if(!empty($envVendorPath))
-            $vendorpath = $envVendorPath;
+
+        if(empty($envVendorPath))
+        {
+            die("Unable to find Composer Vendor Path! - ERR[H004]");
+        }
         else
         {
-            if(empty($_SERVER["DOCUMENT_ROOT"]))
-                die("Please set DOCUMENT_ROOT.");
-            $vendorpath ??= \realpath(path: $_SERVER["DOCUMENT_ROOT"] . "/../vendor/");
-        }
-        if(empty($vendorpath))
-            die("Unable to find Composer Vendor Path!");
-        else
+            $vendorpath = $envVendorPath;
             return $vendorpath;
+        }
     }
 
     /** Gets the path of the inner Library Twigg folder
@@ -87,11 +135,11 @@ class H extends GLOBALE
      * @param bool|string $vendorPath
      * @return bool|string
      */
-    protected function getTwigpath(bool|string $vendorPath = NULL): bool|string
+    protected function getTwigpath(bool|string $vendorPath = null): bool|string
     {
         $vendorPath ??= $this->getVendorpath();
-        $namespace = \str_replace(search: '\\', replace: DIRECTORY_SEPARATOR, subject: \strtolower(string: __NAMESPACE__));
-        $twigPath  = \realpath($vendorPath . DIRECTORY_SEPARATOR . $namespace);
+        $namespace  = \str_replace(search: '\\', replace: DIRECTORY_SEPARATOR, subject: \strtolower(string: __NAMESPACE__));
+        $twigPath   = \realpath($vendorPath . DIRECTORY_SEPARATOR . $namespace);
         if(empty($twigPath))
         {
             die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H002]");
@@ -106,7 +154,7 @@ class H extends GLOBALE
      * @param bool|string $vendorPath
      * @return bool|string
      */
-    protected function getTwigTemplatespath(bool|string $vendorPath = NULL): bool|string
+    protected function getTwigTemplatespath(bool|string $vendorPath = null): bool|string
     {
         $vendorPath ??= $this->getVendorpath();
         $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $this->templatePath);
@@ -117,15 +165,6 @@ class H extends GLOBALE
         else
             return $twigTemplatePath;
     }
-
-
-
-
-
-
-
-
-
 
     /** Cash Metatag ( no-cash | 3600s )
      * @param string|int $cash 
@@ -160,9 +199,26 @@ class H extends GLOBALE
         return $txt;
     }
 
-
-
-
+    /** Check if a relative file exists in context of the public folder,  
+     * and returns the `$publicfile` string if exists, else dies
+     * @param string $publicFile
+     * @return bool|string
+     */
+    public function checkF(string $publicFile): bool|string
+    {
+        if(empty($publicFile))
+        {
+            die("This public file died suddently. ERR[H000].");
+        }
+        if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
+        {
+            return $publicFile;
+        }
+        else
+        {
+            die("This public file does not exist: $publicFile. ERR[H000]");
+        }
+    }
 
     /** Loading Scripts from CDN ( jquery, bootstrap js)
      * @return string
@@ -171,35 +227,6 @@ class H extends GLOBALE
     {
         $txt = m(__METHOD__);
 
-        // if($this->ping($_ENV['CDN_JQ']) !== "down")
-        // {
-        //     // defer = laden wenn alles rum ist
-        //     $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JQ'] . '"></script>' . PHP_EOL;
-        //     //$txt .= '<script type="text/javascript" src="' . $_ENV['CDN_PO'] . '"></script>' . PHP_EOL;
-        //     // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
-        //     $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JS_BUNDLE'] . '"></script>' . PHP_EOL;
-
-        //     //$txt .= '<script type="text/javascript" src="' . $_ENV['PRISM_JS'] . '"></script>' . PHP_EOL;
-        // }
-        // else
-        // {
-        //     $txt .= '<script type="text/javascript" src="/static/jquery/jquery.min.js"></script>' . PHP_EOL;
-        //     // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
-        //     //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
-        //     $txt .= '<script type="text/javascript" src="/static/bs/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
-        //     //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
-        // }
-
-
-
-        $txt .= '<script type="text/javascript" src="/static/jquery/dist/jquery.min.js"></script>' . PHP_EOL;
-        // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
-        //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
-        $txt .= '<script type="text/javascript" src="/static/bootstrap/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
-        //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
-
-
-
         if(isset($_ENV['CDN_JQ']) and $this->ping($_ENV['CDN_JQ']) !== "down")
         {
             // defer = laden wenn alles rum ist
@@ -207,15 +234,14 @@ class H extends GLOBALE
             //$txt .= '<script type="text/javascript" src="' . $_ENV['CDN_PO'] . '"></script>' . PHP_EOL;
             // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
             $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JS_BUNDLE'] . '"></script>' . PHP_EOL;
-
             //$txt .= '<script type="text/javascript" src="' . $_ENV['PRISM_JS'] . '"></script>' . PHP_EOL;
         }
         else
         {
-            $txt .= '<script type="text/javascript" src="/static/@jquery/dist/jquery.min.js"></script>' . PHP_EOL;
+            $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/@jquery/dist/jquery.min.js') . '"></script>' . PHP_EOL;
             // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
             //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
-            $txt .= '<script type="text/javascript" src="/static/bs/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
+            $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/bs/dist/js/bootstrap.bundle.min.js') . '"></script>' . PHP_EOL;
             //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
         }
         return $txt;
@@ -239,9 +265,9 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="/static/bs/font/bootstrap-icons.min.css" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="/static/bs/font/bootstrap-icons.min.css" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="/static/bs/font/bootstrap-icons.min.css">' . PHP_EOL;
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '">' . PHP_EOL;
         }
         //CDN_CSS VON OBSI
         if(isset($_ENV['CDN_CSS']) and $this->ping($_ENV['CDN_CSS']) !== "down")
@@ -254,9 +280,9 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="/static/bs/dist/css/bootstrap.min.css" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="/static/bs/dist/css/bootstrap.min.css" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="/static/bs/dist/css/bootstrap.min.css">' . PHP_EOL;
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '">' . PHP_EOL;
         }
 
         // //PRISM_CSS
@@ -295,7 +321,7 @@ class H extends GLOBALE
     public function loadStyles()
     {
         $txt = m(__METHOD__);
-        $ds  = $_ENV['HTTP'] . DIRECTORY_SEPARATOR . $_ENV['CSS'];
+        $ds  = $_ENV['CSS_RELATIVE_PATH'] .DIRECTORY_SEPARATOR ;
 
         if(isMobile())
         {
@@ -306,7 +332,7 @@ class H extends GLOBALE
             // CSS wenn Mobile
             foreach($files as $file)
             {
-                if(file_exists($_ENV['CSS_ROOT'] . $file))
+                if(file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
                 {
                     $txt .= '<link rel="stylesheet" type="text/css" href="' . $ds . $file . '" as="style" media="(max-width: 480px)" Cache-Control="max-age=36000">' . PHP_EOL;
                     $txt .= '<link rel="preload" type="text/css" href="' . $ds . $file . '" as="style">' . PHP_EOL;
@@ -321,20 +347,21 @@ class H extends GLOBALE
         else
         {
             $files = array(
-                'menu.min.css',
-                'buchungssatz.min.css',
-                'switch.min.css',
-                'main0.min.css',
-                'datalist.min.css',
+                'style.min.css',
+                #'buchungssatz.min.css',
+                #'switch.min.css',
+                #'main0.min.css',
+                #'datalist.min.css',
             );
             // CSS when not mobile
             foreach($files as $file)
             {
-                if(file_exists($_ENV['CSS_ROOT'] . $file))
+                if(file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
                 {
-                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $ds . $file . '" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
-                    $txt .= '<link rel="preload" type="text/css" href="' . $ds . $file . '" as="style">' . PHP_EOL;
-                    $txt .= '<link rel="prefetch" href="' . $ds . $file . '" >' . PHP_EOL;
+                    error_log("+++++++ ".$this->checkF($ds . $file));
+                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF($ds . $file) . '" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
+                    $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF($ds . $file) . '" as="style">' . PHP_EOL;
+                    $txt .= '<link rel="prefetch" href="' . $this->checkF($ds . $file) . '" >' . PHP_EOL;
                 }
                 else
                 {
