@@ -16,16 +16,16 @@ class H extends GLOBALE
     protected $cdn_down;
     protected $loader;
     protected $twig;
-    protected $twigpath;
+    protected $templatePath = "templates";
 
     public function __construct()
     {
         $this->cdn_down = true;
 
-        $this->loader = new FilesystemLoader(paths: $this->getTwigpath() . "/templates/");
+        $this->loader = new FilesystemLoader(paths: $this->getTwigTemplatespath());
 
         // Namespacing : wir erstellen ein twig namespace 'index'
-        $this->loader->addPath(path: $this->getTwigpath() . "/templates/", namespace: 'header');
+        $this->loader->addPath(path: $this->getTwigTemplatespath(), namespace: 'header');
 
         // twig Objekt erstellen
         $this->twig = new Environment(loader: $this->loader);
@@ -103,14 +103,13 @@ class H extends GLOBALE
     /** Gets the path of the inner Library templates folder
      *  - it uses getVendorpath() only if no vendorpath was injected in getTwigpath()
      * TODO: sollte irgendwann in ein ecxod/twigg umziehen 
-     * @param string $templatePath
      * @param string $vendorPath
      * @return bool|string
      */
-    protected function getTwigTemplatespath(string $templatePath = "templates", string $vendorPath = ""): bool|string
+    protected function getTwigTemplatespath(string $vendorPath = ""): bool|string
     {
         $vendorPath ?? $this->getVendorpath();
-        $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $templatePath);
+        $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $this->templatePath);
         if(empty($twigTemplatePath))
         {
             die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H003]");
@@ -134,7 +133,7 @@ class H extends GLOBALE
      */
     public function cash(string|int $cash): string
     {
-        $txt = m(m: __METHOD__);
+        $txt = m(__METHOD__);
 
         // todo . nachdenken ob cache sinn macht in diesem fall
         if($cash === "no-cache")
@@ -170,7 +169,36 @@ class H extends GLOBALE
      */
     public function loadScripts(): string
     {
-        $txt = m(m: __METHOD__);
+        $txt = m(__METHOD__);
+
+        // if($this->ping($_ENV['CDN_JQ']) !== "down")
+        // {
+        //     // defer = laden wenn alles rum ist
+        //     $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JQ'] . '"></script>' . PHP_EOL;
+        //     //$txt .= '<script type="text/javascript" src="' . $_ENV['CDN_PO'] . '"></script>' . PHP_EOL;
+        //     // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
+        //     $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JS_BUNDLE'] . '"></script>' . PHP_EOL;
+
+        //     //$txt .= '<script type="text/javascript" src="' . $_ENV['PRISM_JS'] . '"></script>' . PHP_EOL;
+        // }
+        // else
+        // {
+        //     $txt .= '<script type="text/javascript" src="/static/jquery/jquery.min.js"></script>' . PHP_EOL;
+        //     // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
+        //     //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
+        //     $txt .= '<script type="text/javascript" src="/static/bs/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
+        //     //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
+        // }
+
+
+
+        $txt .= '<script type="text/javascript" src="/static/jquery/dist/jquery.min.js"></script>' . PHP_EOL;
+        // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
+        //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
+        $txt .= '<script type="text/javascript" src="/static/bootstrap/dist/js/bootstrap.bundle.min.js"></script>' . PHP_EOL;
+        //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
+
+
 
         if(isset($_ENV['CDN_JQ']) and $this->ping($_ENV['CDN_JQ']) !== "down")
         {
@@ -200,8 +228,7 @@ class H extends GLOBALE
      */
     public function loadBootstrapCssAndIcons()
     {
-        // $txt = m(__METHOD__);
-        $txt = "";
+        $txt = m(__METHOD__);
         //CDN_BI
         if(isset($_ENV['CDN_BI']) and $this->ping($_ENV['CDN_BI']) !== "down")
         {
@@ -316,9 +343,6 @@ class H extends GLOBALE
             }
         }
 
-        $txt .= '<link rel="stylesheet" type="text/css" href="/' . $_ENV['PHCSS'] . '/styles.css.php" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
-
-
 
         return $txt;
     }
@@ -374,4 +398,5 @@ class H extends GLOBALE
         }
         return $txt;
     }
+
 }
