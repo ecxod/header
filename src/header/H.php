@@ -49,7 +49,7 @@ class H extends GLOBALE
             // // 'apple' => $this->apple(),
             // // 'twitter' => $this->twitter(),
             'loadBootstrapCssAndIcons' => $this->loadBootstrapCssAndIcons(),
-            // 'loadStyles' => $this->loadStyles() ?? "",
+            // 'loadStyles' => $this->loadStyles() ??= "",
             // // 'autor' => $this->autor(),
             // // 'datum' => $this->datum(),
             // // 'canonical' => $this->canonical(),
@@ -73,7 +73,7 @@ class H extends GLOBALE
         {
             if(empty($_SERVER["DOCUMENT_ROOT"]))
                 die("Please set DOCUMENT_ROOT.");
-            $vendorpath ?? \realpath(path: $_SERVER["DOCUMENT_ROOT"] . "/../vendor/");
+            $vendorpath ??= \realpath(path: $_SERVER["DOCUMENT_ROOT"] . "/../vendor/");
         }
         if(empty($vendorpath))
             die("Unable to find Composer Vendor Path!");
@@ -89,7 +89,7 @@ class H extends GLOBALE
      */
     protected function getTwigpath(string $vendorPath = "")
     {
-        $vendorPath ?? $this->getVendorpath();
+        $vendorPath ??= $this->getVendorpath();
         $namespace = \str_replace(search: '\\', replace: DIRECTORY_SEPARATOR, subject: \strtolower(string: __NAMESPACE__));
         $twigPath  = \realpath($vendorPath . DIRECTORY_SEPARATOR . $namespace);
         if(empty($twigPath))
@@ -108,7 +108,7 @@ class H extends GLOBALE
      */
     protected function getTwigTemplatespath(string $vendorPath = ""): bool|string
     {
-        $vendorPath ?? $this->getVendorpath();
+        $vendorPath ??= $this->getVendorpath();
         $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $this->templatePath);
         if(empty($twigTemplatePath))
         {
