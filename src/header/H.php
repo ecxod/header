@@ -49,7 +49,7 @@ class H extends GLOBALE
             // // 'apple' => $this->apple(),
             // // 'twitter' => $this->twitter(),
             'loadBootstrapCssAndIcons' => $this->loadBootstrapCssAndIcons(),
-            'loadStyles' => $this->loadStyles() ?? "",
+            'loadStyles'               => $this->loadStyles() ?? "",
             // // 'autor' => $this->autor(),
             // // 'datum' => $this->datum(),
             // // 'canonical' => $this->canonical(),
@@ -321,38 +321,37 @@ class H extends GLOBALE
     public function loadStyles()
     {
         $txt = m(__METHOD__);
-        $ds  = $_ENV['CSS_RELATIVE_PATH'] .DIRECTORY_SEPARATOR ;
+        $ds  = $_ENV['CSS_RELATIVE_PATH'] . DIRECTORY_SEPARATOR;
 
         if(isMobile())
         {
-            $files = array(
-                'menu-mobile.min.css',
-            );
-
+            if(empty($_ENV["SCRIPTSMOBILE"]))
+                die("Please set \$_ENV['SCRIPTSMOBILE'] to something like a coma separated string of scripts for mobile.");
+            $files = explode(separator: ",", string: str_replace(search: "\n", replace: '', subject: strval(value: $_ENV['SCRIPTS'])));
             // CSS wenn Mobile
             foreach($files as $file)
             {
-                if(file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
+                if(!empty($file) and file_exists($_ENV['CSS_PATH'] . DIRECTORY_SEPARATOR . $file))
                 {
-                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $ds . $file . '" as="style" media="(max-width: 480px)" Cache-Control="max-age=36000">' . PHP_EOL;
-                    $txt .= '<link rel="preload" type="text/css" href="' . $ds . $file . '" as="style">' . PHP_EOL;
-                    $txt .= '<link rel="prefetch" href="' . $ds . $file . '" >' . PHP_EOL;
+                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: "$ds$file") . '" as="style" media="(max-width: 480px)" Cache-Control="max-age=36000">' . PHP_EOL;
+                    $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: "$ds$file") . '" as="style">' . PHP_EOL;
+                    $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: "$ds$file") . '" >' . PHP_EOL;
                 }
             }
         }
         else
         {
             if(empty($_ENV["SCRIPTS"]))
-                die("Please set \$_ENV['VENDOR'] to something like '" . $_SERVER["DOCUMENT_ROOT"] . "/../vendor/" . "' inside your Document Root.");
-            $files = explode(separator: ",",string: str_replace(search: "\n",replace: '',subject: strval(value: $_ENV['SCRIPTS'])));
+                die("Please set \$_ENV['SCRIPTS'] to something like a coma separated string of scripts.");
+            $files = explode(separator: ",", string: str_replace(search: "\n", replace: '', subject: strval(value: $_ENV['SCRIPTS'])));
             // CSS when not mobile
             foreach($files as $file)
             {
-                if(!empty($file) and file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
+                if(!empty($file) and file_exists($_ENV['CSS_PATH'] . DIRECTORY_SEPARATOR . $file))
                 {
-                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF($ds . $file) . '" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
-                    $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF($ds . $file) . '" as="style">' . PHP_EOL;
-                    $txt .= '<link rel="prefetch" href="' . $this->checkF($ds . $file) . '" >' . PHP_EOL;
+                    $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: "$ds$file") . '" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
+                    $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: "$ds$file") . '" as="style">' . PHP_EOL;
+                    $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: "$ds$file") . '" >' . PHP_EOL;
                 }
             }
         }
