@@ -84,10 +84,10 @@ class H extends GLOBALE
     /** Gets the path of the inner Library Twigg folder
      *  - it uses getVendorpath() only if no vendorpath was injected in getTwigpath()
      * TODO: sollte irgendwann in ein ecxod/twigg umziehen 
-     * @param string $vendorPath
+     * @param bool|string $vendorPath
      * @return bool|string
      */
-    protected function getTwigpath(string $vendorPath = "")
+    protected function getTwigpath(bool|string $vendorPath = NULL): bool|string
     {
         $vendorPath ??= $this->getVendorpath();
         $namespace = \str_replace(search: '\\', replace: DIRECTORY_SEPARATOR, subject: \strtolower(string: __NAMESPACE__));
@@ -103,10 +103,10 @@ class H extends GLOBALE
     /** Gets the path of the inner Library templates folder
      *  - it uses getVendorpath() only if no vendorpath was injected in getTwigpath()
      * TODO: sollte irgendwann in ein ecxod/twigg umziehen 
-     * @param string $vendorPath
+     * @param bool|string $vendorPath
      * @return bool|string
      */
-    protected function getTwigTemplatespath(string $vendorPath = ""): bool|string
+    protected function getTwigTemplatespath(bool|string $vendorPath = NULL): bool|string
     {
         $vendorPath ??= $this->getVendorpath();
         $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $this->templatePath);
