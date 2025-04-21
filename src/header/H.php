@@ -75,7 +75,7 @@ class H extends GLOBALE
 
         $publicFolderPath = \realpath(path: $_ENV["ROOT"] . DIRECTORY_SEPARATOR . $_ENV['PUBLIC']);
         if(empty($publicFolderPath))
-            die("Unable to find Public Folder Path! - ERR[H0006]");
+            die("Unable to find Public Folder Path! - ERR[H00100]");
         else
             return $publicFolderPath;
     }
@@ -84,7 +84,7 @@ class H extends GLOBALE
     {
         $publicFolderPath = $this->getPublicFolderPath();
         if(empty($_ENV["STATIC"]))
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H004]");
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00200]");
         $staticFolderPath = DIRECTORY_SEPARATOR . strval($_ENV["STATIC"]);
         return $staticFolderPath;
     }
@@ -93,11 +93,11 @@ class H extends GLOBALE
     {
         $publicFolderPath = $this->getPublicFolderPath();
         if(empty($_ENV["STATIC"]))
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H004]");
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00300]");
         $staticFolderPath = \realpath($publicFolderPath . DIRECTORY_SEPARATOR . $_ENV["STATIC"]);
         if(empty($staticFolderPath))
         {
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H005]");
+            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00400]");
         }
         else
             return $staticFolderPath;
@@ -120,7 +120,7 @@ class H extends GLOBALE
 
         if(empty($envVendorPath))
         {
-            die("Unable to find Composer Vendor Path! - ERR[H004]");
+            die("Unable to find Composer Vendor Path! - ERR[H00500]");
         }
         else
         {
@@ -142,7 +142,7 @@ class H extends GLOBALE
         $twigPath   = \realpath($vendorPath . DIRECTORY_SEPARATOR . $namespace);
         if(empty($twigPath))
         {
-            die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H002]");
+            die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H00600]");
         }
         else
             return $twigPath;
@@ -160,7 +160,7 @@ class H extends GLOBALE
         $twigTemplatePath = \realpath($this->getTwigpath($vendorPath) . DIRECTORY_SEPARATOR . $this->templatePath);
         if(empty($twigTemplatePath))
         {
-            die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H003]");
+            die("The Library " . __NAMESPACE__ . " is missing, damaged or in a wrong version! ERR[H00700]");
         }
         else
             return $twigTemplatePath;
@@ -208,7 +208,7 @@ class H extends GLOBALE
     {
         if(empty($publicFile))
         {
-            die("This public file died suddently. ERR[H000].");
+            die("This public file died suddently. ERR[H00800].");
         }
         if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
         {
@@ -216,7 +216,7 @@ class H extends GLOBALE
         }
         else
         {
-            die("This public file does not exist: $publicFile. ERR[H000]");
+            die("This public file does not exist: $publicFile. ERR[H00900]");
         }
     }
 
@@ -265,9 +265,11 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '">' . PHP_EOL;
+            $publicFile = 'static/bs/font/bootstrap-icons.min.css';
+            if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
+                $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
         }
         //CDN_CSS VON OBSI
         if(isset($_ENV['CDN_CSS']) and $this->ping($_ENV['CDN_CSS']) !== "down")
@@ -280,9 +282,11 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '">' . PHP_EOL;
+            $publicFile = 'static/bs/dist/css/bootstrap.min.css';
+            if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
         }
 
         // //PRISM_CSS
