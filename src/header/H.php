@@ -265,9 +265,9 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: '/static/bs/font/bootstrap-icons.min.css') . '">' . PHP_EOL;
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: 'static/bs/font/bootstrap-icons.min.css') . '">' . PHP_EOL;
         }
         //CDN_CSS VON OBSI
         if(isset($_ENV['CDN_CSS']) and $this->ping($_ENV['CDN_CSS']) !== "down")
@@ -280,9 +280,9 @@ class H extends GLOBALE
         else
         {
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: '/static/bs/dist/css/bootstrap.min.css') . '">' . PHP_EOL;
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: 'static/bs/dist/css/bootstrap.min.css') . '">' . PHP_EOL;
         }
 
         // //PRISM_CSS
@@ -338,34 +338,21 @@ class H extends GLOBALE
                     $txt .= '<link rel="preload" type="text/css" href="' . $ds . $file . '" as="style">' . PHP_EOL;
                     $txt .= '<link rel="prefetch" href="' . $ds . $file . '" >' . PHP_EOL;
                 }
-                else
-                {
-                    //F::logg("$file does not exist?", __METHOD__, __LINE__);
-                }
             }
         }
         else
         {
-            $files = array(
-                'style.min.css',
-                #'buchungssatz.min.css',
-                #'switch.min.css',
-                #'main0.min.css',
-                #'datalist.min.css',
-            );
+            if(empty($_ENV["SCRIPTS"]))
+                die("Please set \$_ENV['VENDOR'] to something like '" . $_SERVER["DOCUMENT_ROOT"] . "/../vendor/" . "' inside your Document Root.");
+            $files = explode(separator: ",",string: str_replace(search: "\n",replace: '',subject: strval(value: $_ENV['SCRIPTS'])));
             // CSS when not mobile
             foreach($files as $file)
             {
-                if(file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
+                if(!empty($file) and file_exists($_ENV['CSS_PATH'] .DIRECTORY_SEPARATOR . $file))
                 {
-                    error_log("+++++++ ".$this->checkF($ds . $file));
                     $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF($ds . $file) . '" media="screen" as="style" Cache-Control="max-age=36000">' . PHP_EOL;
                     $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF($ds . $file) . '" as="style">' . PHP_EOL;
                     $txt .= '<link rel="prefetch" href="' . $this->checkF($ds . $file) . '" >' . PHP_EOL;
-                }
-                else
-                {
-                    //F::logg("$file does not exist?", __METHOD__, __LINE__);
                 }
             }
         }
