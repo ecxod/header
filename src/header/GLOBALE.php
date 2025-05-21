@@ -6,7 +6,7 @@ namespace Ecxod\Header;
 
 class GLOBALE
 {
-    function __construct()
+    public function __construct()
     {
 
     }
