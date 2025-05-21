@@ -5,7 +5,9 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "src/header/H.php",
+            "templates/_head.twig",
+            "templates/encType.twig",
+            "templates/viewport.twig",
             "tests/HeaderTest.php"
         ],
         "psr-4": {
@@ -23,12 +25,15 @@
     "require": {
         "php": "^7.2|^7.4|^8.0|^8.2",
         "twig/twig": "^3.17",
-        "ecxod/funktionen": "^1.0"
+        "ecxod/funktionen": "^1.0",
+        "sentry/sentry": "^4.11"
     },
     "archive": {
         "exclude": [
             ".github",
             ".vscode",
+            "public",
+            "node_modules",
             "tests/HeaderTest.php",
             "vendor"
         ]
