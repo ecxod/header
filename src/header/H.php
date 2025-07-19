@@ -53,7 +53,7 @@ class H extends GLOBALE
             // // 'autor' => $this->autor(),
             // // 'datum' => $this->datum(),
             // // 'canonical' => $this->canonical(),
-            //'loadScripts'              => $this->loadScripts(),
+            'loadScripts'              => $this->loadScripts(),
 
         ]);
     }
@@ -80,28 +80,31 @@ class H extends GLOBALE
             return $publicFolderPath;
     }
 
-    public function getRelativeStaticFolderPath()
-    {
-        $publicFolderPath = $this->getPublicFolderPath();
-        if(empty($_ENV["STATIC"]))
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00200]");
-        $staticFolderPath = DIRECTORY_SEPARATOR . strval($_ENV["STATIC"]);
-        return $staticFolderPath;
-    }
+    // public function getRelativeStaticFolderPath()
+    // {
+    //     if(empty($_ENV["STATIC"]))
+    //     {
+    //         die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00200]");
+    //     }
+    //     $staticFolderPath = DIRECTORY_SEPARATOR . strval($_ENV["STATIC"]);
+    //     return $staticFolderPath;
+    // }
 
-    public function getStaticFolderPath()
-    {
-        $publicFolderPath = $this->getPublicFolderPath();
-        if(empty($_ENV["STATIC"]))
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00300]");
-        $staticFolderPath = \realpath($publicFolderPath . DIRECTORY_SEPARATOR . $_ENV["STATIC"]);
-        if(empty($staticFolderPath))
-        {
-            die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00400]");
-        }
-        else
-            return $staticFolderPath;
-    }
+    // public function getStaticFolderPath()
+    // {
+    //     $publicFolderPath = $this->getPublicFolderPath();
+    //     if(empty($_ENV["STATIC"]))
+    //     {
+    //         die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00300]");
+    //     }
+    //     $staticFolderPath = \realpath($publicFolderPath . DIRECTORY_SEPARATOR . $_ENV["STATIC"]);
+    //     if(empty($staticFolderPath))
+    //     {
+    //         die("Please set \$_ENV['STATIC'] to the foldername of the static folder inside the public folder ( example: \$_ENV['STATIC']='static'). ERR[H00400]");
+    //     }
+    //     else
+    //         return $staticFolderPath;
+    // }
 
     /** Get the Composer Vendor Path
      * @return string
@@ -239,67 +242,46 @@ class H extends GLOBALE
     public function loadBootstrapCssAndIcons()
     {
         $txt = m(__METHOD__);
-        //CDN_BI
-        if(isset($_ENV['CDN_BI']) and $this->ping($_ENV['CDN_BI']) !== "down")
-        {
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $_ENV['CDN_BI'] . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $_ENV['CDN_BI'] . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $_ENV['CDN_BI'] . '">' . PHP_EOL;
-        }
-        else
-        {
-            // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $publicFile = 'static/bs/font/bootstrap-icons.min.css';
-            if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
-                $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
-        }
-        //CDN_CSS VON OBSI
-        if(isset($_ENV['CDN_CSS']) and $this->ping($_ENV['CDN_CSS']) !== "down")
-        {
 
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $_ENV['CDN_CSS'] . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-            $txt .= '<link rel="preload" type="text/css" href="' . $_ENV['CDN_CSS'] . '" as="style">' . PHP_EOL;
-            $txt .= '<link rel="prefetch" href="' . $_ENV['CDN_CSS'] . '">' . PHP_EOL;
-        }
-        else
+        // BOOTSTRAP ICONS
+        $publicFile = 'static/bs/font/bootstrap-icons.min.css';
+        if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
         {
-            // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
-            $publicFile = 'static/bs/dist/css/bootstrap.min.css';
-            if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
-                $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
             $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
             $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
         }
 
-        // //PRISM_CSS
-        // $txt .= '<link rel="stylesheet" type="text/css" href="' . $_ENV['PRISM_CSS'] . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
-        // $txt .= '<link rel="preload" type="text/css" href="' . $_ENV['PRISM_CSS'] . '" as="style">' . PHP_EOL;
-        // $txt .= '<link rel="prefetch" href="' . $_ENV['PRISM_CSS'] . '">' . PHP_EOL;
+        // BOOTSTRAP
+        $publicFile = 'static/bs/dist/css/bootstrap.min.css';
+        if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
+        {
+            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+            $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
+            $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
+        }
 
         return $txt;
     }
 
-    public function ping($host, $port = 80, $timeout = 10)
-    {
-        $starttime = microtime(true);
-        $file      = @fsockopen($host, $port, $errno, $errstr, $timeout);
-        $stoptime  = microtime(true);
-
-        if(!$file)
-        {
-            $this->cdn_down = true;
-            return "down";
-        }
-        else
-        {
-            fclose($file);
-            $status         = ($stoptime - $starttime) * 1000;
-            $this->cdn_down = false;
-            return round($status, 0) . " ms";
-        }
-    }
+    // public function ping($host, $port = 80, $timeout = 10)
+    // {
+    //     $starttime = microtime(true);
+    //     $file      = @fsockopen($host, $port, $errno, $errstr, $timeout);
+    //     $stoptime  = microtime(true);
+    //     if(!$file)
+    //     {
+    //         $this->cdn_down = true;
+    //         return "down";
+    //     }
+    //     else
+    //     {
+    //         fclose($file);
+    //         $status         = ($stoptime - $starttime) * 1000;
+    //         $this->cdn_down = false;
+    //         return round($status, 0) . " ms";
+    //     }
+    // }
 
     /**
      *  SetEnv WEBROOT		/raid/home/christian/wdrive/buchungssatz
@@ -349,16 +331,15 @@ class H extends GLOBALE
     }
 
 
-    public function scripteNachladen()
-    {
-        $txt = m(__METHOD__);
-        $txt .= $this->javamuell();
-        // $txt .= cHEAD::google();
-        // $txt .= cHEAD::google_analytics('UA-5142614-40'); // Lenz
-        // $txt .= cHEAD::google_analytics('UA-5142614-21'); // eichert
-
-        return $txt;
-    }
+    // public function scripteNachladen()
+    // {
+    //     $txt = m(__METHOD__);
+    //     $txt .= $this->javamuell();
+    //     // $txt .= cHEAD::google();
+    //     // $txt .= cHEAD::google_analytics('UA-5142614-40'); // Lenz
+    //     // $txt .= cHEAD::google_analytics('UA-5142614-21'); // eichert
+    //     return $txt;
+    // }
 
     /**
      * javamuell - ladet verschidene Java scripte
@@ -371,7 +352,6 @@ class H extends GLOBALE
     {
         $txt = m(__METHOD__);
         $txt .= h::loadScriptSRC(src: 'copyToClipboard_.min.js');
-
         return $txt;
     }
 
