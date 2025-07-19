@@ -226,24 +226,8 @@ class H extends GLOBALE
     public function loadScripts(): string
     {
         $txt = m(__METHOD__);
-
-        if(isset($_ENV['CDN_JQ']) and $this->ping($_ENV['CDN_JQ']) !== "down")
-        {
-            // defer = laden wenn alles rum ist
-            $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JQ'] . '"></script>' . PHP_EOL;
-            //$txt .= '<script type="text/javascript" src="' . $_ENV['CDN_PO'] . '"></script>' . PHP_EOL;
-            // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
-            $txt .= '<script type="text/javascript" src="' . $_ENV['CDN_JS_BUNDLE'] . '"></script>' . PHP_EOL;
-            //$txt .= '<script type="text/javascript" src="' . $_ENV['PRISM_JS'] . '"></script>' . PHP_EOL;
-        }
-        else
-        {
-            $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/@jquery/dist/jquery.min.js') . '"></script>' . PHP_EOL;
-            // popper muss vor bootstrapjs, oder man muss bootsrap.bundle nutzen
-            //$txt .= '<script type="text/javascript" src="/static/@popperjs/core/dist/umd/popper.min.js"></script>' . PHP_EOL;
-            $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/bs/dist/js/bootstrap.bundle.min.js') . '"></script>' . PHP_EOL;
-            //$txt .= '<script type="text/javascript" src="/static/prismjs/prism.js"></script>' . PHP_EOL;
-        }
+        $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/@jquery/dist/jquery.min.js') . '"></script>' . PHP_EOL;
+        $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/bs/dist/js/bootstrap.bundle.min.js') . '"></script>' . PHP_EOL;
         return $txt;
     }
 
@@ -284,7 +268,7 @@ class H extends GLOBALE
             // CDN_CSS VON LOKAL /usr/lib/composer/vendor/twbs/bootstrap/dist => bs/dist
             $publicFile = 'static/bs/dist/css/bootstrap.min.css';
             if(realpath($this->getPublicFolderPath() . DIRECTORY_SEPARATOR . $publicFile))
-            $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
+                $txt .= '<link rel="stylesheet" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style" Cache-Control="max-age=3600">' . PHP_EOL;
             $txt .= '<link rel="preload" type="text/css" href="' . $this->checkF(publicFile: $publicFile) . '" as="style">' . PHP_EOL;
             $txt .= '<link rel="prefetch" href="' . $this->checkF(publicFile: $publicFile) . '">' . PHP_EOL;
         }
