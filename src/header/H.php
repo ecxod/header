@@ -231,6 +231,7 @@ class H extends GLOBALE
         $txt = m(__METHOD__);
         $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/@jquery/dist/jquery.min.js') . '"></script>' . PHP_EOL;
         $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/bs/dist/js/bootstrap.bundle.min.js') . '"></script>' . PHP_EOL;
+        $txt .= '<script type="text/javascript" src="' . $this->checkF(publicFile: 'static/js/script.min.js') . '"></script>' . PHP_EOL;
         return $txt;
     }
 
